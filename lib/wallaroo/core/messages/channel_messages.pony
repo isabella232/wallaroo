@@ -310,6 +310,12 @@ primitive ChannelMsgEncoder
   =>
     _encode(RequestFinishedAckMsg(sender, request_id, requester_id), auth)?
 
+  fun request_finished_ack_complete(sender: String, requester_id: StepId,
+    auth: AmbientAuth): Array[ByteSeq] val ?
+  =>
+    _encode(RequestFinishedAckCompleteMsg(sender, requester_id),
+      auth)?
+
   fun finished_ack(sender: String, request_id: RequestId, auth: AmbientAuth):
     Array[ByteSeq] val ?
   =>
@@ -796,3 +802,11 @@ class val RequestFinishedAckMsg is ChannelMsg
     request_id = request_id'
     requester_id = requester_id'
 
+class val RequestFinishedAckCompleteMsg is ChannelMsg
+  let sender: String
+  let requester_id: StepId
+
+  new val create(sender': String, requester_id': StepId)
+  =>
+    sender = sender'
+    requester_id = requester_id'
