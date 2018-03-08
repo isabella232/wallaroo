@@ -19,6 +19,7 @@ Copyright 2017 The Wallaroo Authors.
 use "collections"
 use "../messages"
 use "../mort"
+use "../../wallaroo/core/common"
 
 type _JsonDelimiters is (_JsonString | _JsonArray | _JsonMap)
 
@@ -140,6 +141,10 @@ primitive ClusterStatusQueryJsonEncoder
       _JsonArray))
     entries.push(_Quoted("worker_count") + ":" + worker_count.string())
     _JsonEncoder(consume entries, _JsonMap)
+
+primitive SourceIdsQueryEncoder
+  fun response(source_ids: Array[String] val): String =>
+    _JsonEncoder(source_ids, _JsonArray)
 
 primitive JsonDecoder
   fun string_array(s: String): Array[String] val =>
@@ -386,3 +391,8 @@ primitive ClusterStatusQueryJsonDecoder
 
     ExternalClusterStatusQueryResponseMsg(worker_count, worker_names,
       is_processing)
+
+primitive SourceIdsQueryJsonDecoder
+  fun response(json: String): ExternalSourceIdsQueryResponseMsg =>
+    let source_ids = JsonDecoder.string_array(json)
+    ExternalSourceIdsQueryResponseMsg(source_ids)

@@ -305,6 +305,12 @@ primitive ChannelMsgEncoder
   =>
     _encode(CleanShutdownMsg(msg), auth)?
 
+  //!@
+  fun report_status(code: ReportStatusCode, auth: AmbientAuth):
+    Array[ByteSeq] val ?
+  =>
+    _encode(ReportStatusMsg(code), auth)?
+
   fun request_finished_ack(sender: String, request_id: RequestId,
     requester_id: StepId, auth: AmbientAuth): Array[ByteSeq] val ?
   =>
@@ -457,7 +463,8 @@ trait val StepMigrationMsg is ChannelMsg
   fun step_id(): U128
   fun state(): ByteSeq val
   fun worker(): String
-  fun update_router_registry(router_registry: RouterRegistry, target: Consumer)
+  fun update_router_registry(router_registry: RouterRegistry ref,
+    target: Consumer)
 
 class val KeyedStepMigrationMsg[K: (Hashable val & Equatable[K] val)] is
   StepMigrationMsg
@@ -480,7 +487,8 @@ class val KeyedStepMigrationMsg[K: (Hashable val & Equatable[K] val)] is
   fun step_id(): U128 => _step_id
   fun state(): ByteSeq val => _state
   fun worker(): String => _worker
-  fun update_router_registry(router_registry: RouterRegistry, target: Consumer)
+  fun update_router_registry(router_registry: RouterRegistry ref,
+    target: Consumer)
   =>
     router_registry.move_proxy_to_stateful_step[K](_step_id, target, _key,
       _state_name, _worker)
@@ -810,3 +818,10 @@ class val RequestFinishedAckCompleteMsg is ChannelMsg
   =>
     sender = sender'
     requester_id = requester_id'
+
+//!@
+class val ReportStatusMsg is ChannelMsg
+  let code: ReportStatusCode
+
+  new val create(c: ReportStatusCode) =>
+    code = c
